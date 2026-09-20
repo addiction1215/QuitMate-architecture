@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Quitmate 흡연 기록과 피드백 데이터 흐름",
+    "viewBox": [1080, 640],
+    "quality_profile": "showcase"
+  },
+  "stages": [
+    { "label": "사용자 입력" },
+    { "label": "API 처리" },
+    { "label": "현재 데이터" },
+    { "label": "통계·발송" },
+    { "label": "사용자 결과" }
+  ],
+  "nodes": [
+    { "id": "app", "type": "frontend", "label": "Quitmate 앱", "sublabel": "흡연 기록 · 통계 조회", "stage": 0, "row": 1, "tag": "사용자 입력" },
+    { "id": "api", "type": "backend", "label": "API 서버", "sublabel": "인증 · 도메인 처리", "stage": 1, "row": 1, "tag": "HTTPS" },
+    { "id": "mysql", "type": "database", "label": "MySQL", "sublabel": "당일 원본 · 현재 상태", "stage": 2, "row": 1, "tag": "기준 데이터" },
+    { "id": "scheduler", "type": "backend", "label": "예약 배치", "sublabel": "자정 집계·발송 준비", "stage": 2, "row": 3, "tag": "시간 기반" },
+    { "id": "mongo", "type": "database", "label": "MongoDB", "sublabel": "과거 일별 통계·상세 이력", "stage": 3, "row": 1, "tag": "시계열 이력" },
+    { "id": "outbox", "type": "backend", "label": "Push Outbox", "sublabel": "선점·재시도 상태", "stage": 3, "row": 3, "tag": "신뢰성" },
+    { "id": "stats", "type": "frontend", "label": "통계 화면", "sublabel": "그래프 · 캘린더 · 피드백", "stage": 4, "row": 1, "tag": "즉시 반영" },
+    { "id": "expo", "type": "external", "label": "Expo Push", "sublabel": "예약 피드백 알림", "stage": 4, "row": 3, "tag": "모바일 알림" }
+  ],
+  "flows": [
+    { "id": "record-request", "from": "app", "to": "api", "label": "흡연 추가·취소와 통계 조회", "classification": "인증된 API 요청", "variant": "emphasis", "route": "straight", "labelAt": [208, 325] },
+    { "id": "current-state", "from": "api", "to": "mysql", "label": "당일 원본과 현재 상태", "classification": "트랜잭션 데이터", "variant": "emphasis", "route": "straight", "labelAt": [423, 325] },
+    { "id": "archive-source", "from": "mysql", "to": "scheduler", "label": "전날 원본 기록", "classification": "자정 집계 대상", "variant": "dashed", "route": "straight", "labelAt": [530, 375] },
+    { "id": "daily-history", "from": "scheduler", "to": "mongo", "label": "사용자별 일별 통계", "classification": "이관 데이터", "variant": "emphasis", "fromSide": "right", "toSide": "bottom", "via": [[637.5, 499], [637.5, 350], [745, 350], [745, 300]], "labelAt": [650, 368] },
+    { "id": "historical-result", "from": "mongo", "to": "stats", "label": "과거 그래프·캘린더 데이터", "classification": "통계 조회", "variant": "default", "route": "straight", "labelAt": [853, 325] },
+    { "id": "schedule-outbox", "from": "scheduler", "to": "outbox", "label": "발송 대기 건", "classification": "예약 피드백", "variant": "dashed", "route": "straight", "labelAt": [638, 540] },
+    { "id": "send-push", "from": "outbox", "to": "expo", "label": "푸시 발송과 재시도", "classification": "외부 전달", "variant": "emphasis", "route": "straight", "labelAt": [853, 540] }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "오늘", "items": ["기록을 저장하면 앱은 서버 응답과 캐시 갱신으로 화면을 빠르게 반영한다.", "당일 원본은 MySQL에서 관리한다."] },
+    { "dot": "emerald", "title": "자정 이후", "items": ["전날 원본은 사용자별 일별 통계로 MongoDB에 이관된다.", "과거 그래프와 캘린더는 이 일별 이력을 조회한다."] },
+    { "dot": "orange", "title": "알림", "items": ["예약 시간에 발송 대기 건을 먼저 저장한다.", "발송 실패는 Outbox 상태로 남기고 재시도한다."] }
+  ]
+}
