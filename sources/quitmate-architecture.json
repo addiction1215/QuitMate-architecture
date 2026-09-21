@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Quitmate 전체 시스템 구조",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "사용자", "sublabel": "iOS · Android · Web", "pos": [30, 350], "size": [125, 62] },
+    { "id": "mobile-app", "type": "frontend", "label": "Quitmate 앱", "sublabel": "React Native · Expo · TypeScript", "pos": [220, 350], "size": [165, 62] },
+    { "id": "api", "type": "backend", "label": "Quitmate API 서버", "sublabel": "Spring Boot · JWT 인증 · REST API", "pos": [460, 350], "size": [175, 62], "tag": "주 요청 경로" },
+    { "id": "admin-web", "type": "frontend", "label": "관리자 웹", "sublabel": "admin.quitmate.co.kr", "pos": [30, 160], "size": [165, 62], "tag": "관리자 전용" },
+    { "id": "admin-api", "type": "backend", "label": "관리자 API 서버", "sublabel": "Spring Boot · /admin · ADMIN JWT", "pos": [250, 160], "size": [175, 62], "tag": "관리자 전용" },
+    { "id": "mysql", "type": "database", "label": "MySQL", "sublabel": "회원 · 당일 흡연 · 챌린지 · 알림", "pos": [750, 260], "size": [165, 62] },
+    { "id": "mongo", "type": "database", "label": "MongoDB", "sublabel": "과거 일별 흡연 통계", "pos": [750, 440], "size": [165, 62] },
+    { "id": "scheduler", "type": "backend", "label": "통계·예약 배치", "sublabel": "API 서버 내부 Scheduler", "pos": [460, 560], "size": [175, 62] },
+    { "id": "outbox", "type": "backend", "label": "푸시 Outbox 워커", "sublabel": "API 서버 내부 · 재시도 처리", "pos": [750, 560], "size": [165, 62] },
+    { "id": "expo", "type": "external", "label": "Expo Push", "sublabel": "모바일 알림 전달", "pos": [990, 560], "size": [140, 62] },
+    { "id": "integrations", "type": "external", "label": "외부 연동 서비스", "sublabel": "S3 · Kakao/Google/Naver · SMTP", "pos": [990, 260], "size": [175, 62] },
+    { "id": "observability", "type": "external", "label": "오류·메트릭 관측", "sublabel": "Slack · Log Agent", "pos": [990, 70], "size": [190, 62], "tag": "Prometheus exporter" }
+  ],
+  "connections": [
+    { "id": "user-app", "from": "user", "to": "mobile-app", "label": "앱 사용", "variant": "emphasis" },
+    { "id": "app-api", "from": "mobile-app", "to": "api", "label": "HTTPS REST API · JWT", "variant": "emphasis", "labelDy": -52 },
+    { "id": "admin-web-api", "from": "admin-web", "to": "admin-api", "label": "HTTPS /admin · 관리자 JWT", "variant": "security", "labelDy": -46 },
+    { "id": "admin-api-mysql", "from": "admin-api", "to": "mysql", "label": "관리자 조회·변경", "fromSide": "right", "toSide": "top", "via": [[500, 191], [500, 150], [832.5, 150], [832.5, 230]], "labelAt": [666, 134] },
+    { "id": "api-mysql", "from": "api", "to": "mysql", "label": "현재 상태 저장·조회", "fromSide": "right", "toSide": "left", "labelDy": -32 },
+    { "id": "api-mongo", "from": "api", "to": "mongo", "label": "과거 통계 조회", "fromSide": "right", "toSide": "left", "labelDy": 30 },
+    { "id": "api-integrations", "from": "api", "to": "integrations", "label": "로그인 · 메일 · 이미지", "fromSide": "right", "toSide": "left", "labelAt": [966, 336] },
+    { "id": "scheduler-outbox", "from": "scheduler", "to": "outbox", "label": "발송 대기 건 생성", "variant": "dashed", "labelDy": 42 },
+    { "id": "outbox-expo", "from": "outbox", "to": "expo", "label": "푸시 발송", "variant": "emphasis", "labelDy": -36 },
+    { "id": "expo-app", "from": "expo", "to": "mobile-app", "label": "알림 수신", "variant": "emphasis", "fromSide": "bottom", "toSide": "bottom", "via": [[1060, 700], [302.5, 700]], "labelDy": 32 }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "사용자 경험", "items": ["모바일 앱은 API만 호출하고 DB에 직접 접근하지 않는다.", "앱은 인증 정보와 기기 식별자를 기기에 안전하게 보관한다."] },
+    { "dot": "emerald", "title": "데이터 분리", "items": ["MySQL은 현재 상태와 업무 트랜잭션을 담당한다.", "MongoDB는 날짜별로 정리된 과거 흡연 통계를 담당한다."] },
+    { "dot": "orange", "title": "비동기 처리", "items": ["자정 배치가 통계를 이관한다.", "푸시는 Outbox에 기록한 뒤 별도 워커가 재시도하며 보낸다."] },
+    { "dot": "violet", "title": "관리자 경로", "items": ["관리자 서버는 /admin 컨텍스트 경로에서 별도 실행된다.", "운영 설정상 사용자 API 서버와 같은 MySQL addiction DB를 조회·변경한다."] }
+  ]
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="QuitMate 시스템 구조와 흡연 기록 데이터 흐름을 설명하는 아키텍처 문서" />
+    <title>QuitMate Architecture</title>
+    <style>
+      :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      body { margin: 0; background: #f6f8fb; color: #17202a; }
+      main { max-width: 960px; margin: 0 auto; padding: 72px 24px; }
+      .eyebrow { color: #6b8e23; font-weight: 700; letter-spacing: .08em; font-size: .82rem; }
+      h1 { margin: 12px 0; font-size: clamp(2.2rem, 6vw, 4.2rem); letter-spacing: -.05em; }
+      .intro { max-width: 680px; color: #536170; font-size: 1.1rem; line-height: 1.7; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 42px; }
+      a.card { display: block; padding: 28px; border: 1px solid #dfe6ed; border-radius: 18px; background: #fff; color: inherit; text-decoration: none; box-shadow: 0 8px 26px rgba(35, 49, 62, .08); transition: transform .15s, box-shadow .15s; }
+      a.card:hover, a.card:focus-visible { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(35, 49, 62, .15); }
+      .card h2 { margin: 0 0 12px; font-size: 1.35rem; }
+      .card p { margin: 0; color: #536170; line-height: 1.6; }
+      .arrow { display: inline-block; margin-top: 20px; color: #55751d; font-weight: 700; }
+      footer { margin-top: 52px; color: #6b7785; font-size: .9rem; }
+      @media (prefers-color-scheme: dark) { body { background: #121820; color: #edf2f7; } a.card { background: #1b2530; border-color: #30404e; } .intro, .card p, footer { color: #aebdca; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="eyebrow">QUITMATE · ARCHITECTURE</div>
+      <h1>시스템 구조와<br />데이터 흐름</h1>
+      <p class="intro">QuitMate 서비스의 구성 요소, 외부 연동, 데이터 저장소 및 흡연 기록이 통계와 피드백으로 이어지는 과정을 확인합니다.</p>
+      <section class="grid" aria-label="아키텍처 다이어그램">
+        <a class="card" href="diagrams/quitmate-architecture.html">
+          <h2>전체 시스템 구조</h2>
+          <p>React Native 앱, Spring API 서버, MySQL·MongoDB, 외부 인증·푸시 서비스 간의 책임과 연결을 살펴봅니다.</p>
+          <span class="arrow">다이어그램 열기 →</span>
+        </a>
+        <a class="card" href="diagrams/quitmate-smoking-dataflow.html">
+          <h2>흡연 기록 데이터 흐름</h2>
+          <p>사용자 기록부터 MySQL 저장, MongoDB 통계 조회, 사용자 피드백까지의 데이터 흐름을 따라갑니다.</p>
+          <span class="arrow">다이어그램 열기 →</span>
+        </a>
+      </section>
+      <footer>다이어그램은 코드와 설정을 기준으로 작성한 현재 시점의 아키텍처 문서입니다.</footer>
+    </main>
+  </body>
+</html>
